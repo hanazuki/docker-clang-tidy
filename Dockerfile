@@ -6,9 +6,7 @@ SHELL ["/bin/bash", "-ec"]
 ARG CLANG_VERSION
 
 WORKDIR /tmp/work
-RUN apt-get update -qq && apt-get install -y --no-install-recommends ca-certificates curl gpg gpg-agent xz-utils
-
-ENV DEBIANFRONTENT=noninteractive
+RUN apt-get update -qq && DEBIANFRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates curl gpg gpg-agent xz-utils
 
 COPY keyring.asc ./
 RUN gpg --import < keyring.asc
@@ -26,7 +24,7 @@ RUN sed -i '1 s/python\b/python3/' share/clang/*.py
 RUN for f in share/clang/*.py; do ln -s ../"$f" bin/"$(basename -s .py "$f")"; done
 
 FROM ubuntu:20.04
-RUN apt-get update -qq && apt-get install -y --no-install-recommends python3
+RUN apt-get update -qq && DEBIANFRONTEND=noninteractive apt-get install -y --no-install-recommends python3 && find /var/lib/apt/lists -type f -delete
 
 COPY --from=download /tmp/clang/ /opt/clang/
 ENV PATH=/opt/clang/bin:$PATH
